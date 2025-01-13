@@ -45,19 +45,19 @@ def concatenate_excel_files(file_paths, output_file):
 
 # File paths and corresponding ISO names
 files_and_iso = [
-    ("CAISO_Queue.xlsx", "CAISO"),
-    ("ERCOT_Queue.xlsx", "ERCOT"),
-    ("MISO_Queue.xlsx", "MISO"),
-    ("PJM_Queue.xlsx", "PJM"),
-    ("SPP_Queue.xlsx", "SPP"),
-    ("NEISO_Queue.xlsx", "NEISO"),
-    ("NYISO_Queue.xlsx", "NYISO"),
+    ("Processed Queues/CAISO_Queue.xlsx", "CAISO"),
+    ("Processed Queues/ERCOT_Queue.xlsx", "ERCOT"),
+    ("Processed Queues/MISO_Queue.xlsx", "MISO"),
+    ("Processed Queues/PJM_Queue.xlsx", "PJM"),
+    ("Processed Queues/SPP_Queue.xlsx", "SPP"),
+    ("Processed Queues/NEISO_Queue.xlsx", "NEISO"),
+    ("Processed Queues/NYISO_Queue.xlsx", "NYISO"),
 ]
 
-# File paths
+# File paths for concatenation
 file_paths = [
-    "CAISO_Queue.xlsx", "ERCOT_Queue.xlsx", "MISO_Queue.xlsx",
-    "PJM_Queue.xlsx", "SPP_Queue.xlsx", "NEISO_Queue.xlsx", "NYISO_Queue.xlsx"
+    "Processed Queues/CAISO_Queue.xlsx", "Processed Queues/ERCOT_Queue.xlsx", "Processed Queues/MISO_Queue.xlsx",
+    "Processed Queues/PJM_Queue.xlsx", "Processed Queues/SPP_Queue.xlsx", "Processed Queues/NEISO_Queue.xlsx", "Processed Queues/NYISO_Queue.xlsx"
 ]
 
 # Process each file, filling the first column with the ISO name

@@ -43,13 +43,13 @@ def process_pjm_file(file_path):
             df.columns.values[position] = new_name
 
     # Save the modified DataFrame back to a file
-    output_file = f"PJM_Queue.xlsx"
+    output_file = f"Processed Queues/PJM_Queue.xlsx"
     
     # Save to Excel
     df.to_excel(output_file, index=False, engine='openpyxl')
 
-    print(f"File processed and saved as {output_file}")
+    print(f"File processed and saved at {output_file}")
 
 # Specify file name and run
-file_path = "PJM Queue.xlsx"  # Replace with your file name
+file_path = "Queues/PJM Queue.xlsx"  # Replace with your file name
 process_pjm_file(file_path)
