@@ -65,7 +65,7 @@ def process_ercot_file(file_path):
     merged_data = pd.concat([sheet5_data, sheet6_data], ignore_index=True)
 
     # Save the combined data to a new Excel file
-    output_file = f"ERCOT_Queue.xlsx"
+    output_file = f"Processed Queues/ERCOT_Queue.xlsx"
     merged_data.to_excel(output_file, index=False)
 
     # Re-open the newly saved file to apply the column renaming and merging
@@ -113,8 +113,8 @@ def process_ercot_file(file_path):
 
     wb.save(output_file)
 
-    print(f"File processed and saved as {output_file}")
+    print(f"File processed and saved at {output_file}")
 
 # Specify file name and run
-file_path = "ERCOT GIS_Report_December2024.xlsx"  # Replace with your file name
+file_path = "Queues/ERCOT GIS_Report_December2024.xlsx"  # Replace with your file name
 process_ercot_file(file_path)

@@ -50,7 +50,7 @@ def process_spp_file(file_path):
             df.columns.values[position] = new_name    
 
     # Save the modified DataFrame back to a file
-    output_file = f"SPP_Queue.xlsx"
+    output_file = f"Processed Queues/SPP_Queue.xlsx"
     
     # Save to Excel
     df.to_excel(output_file, index=False, engine='openpyxl')
@@ -69,8 +69,8 @@ def process_spp_file(file_path):
 
     wb.save(output_file)
 
-    print(f"File processed and saved as {output_file}")
+    print(f"File processed and saved at {output_file}")
 
 # Specify file name and run
-file_path = "SPP GI_ActiveRequest.xlsx"  # Replace with your file name
+file_path = "Queues/SPP GI_ActiveRequest.xlsx"  # Replace with your file name
 process_spp_file(file_path)
