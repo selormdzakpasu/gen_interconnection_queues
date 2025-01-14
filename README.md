@@ -31,4 +31,9 @@ Things to note:
 
 * If you encounter an error while running any of the scripts to process a queue in .csv format, first convert the file to .xlsx, and you should be good to go!
 
+* To use this resource:
+1. First, download the latest interconnection queues from the sources listed above and store them in the "Queues" folder.
+2. Change the file paths within the individual Python scripts created for each ISO to reflect the file names of the newly downloaded queues. NB: There is no need to update "Compiler.py"
+3. Run only the "main.py" Python script.
+
 Enjoy!
