@@ -18,14 +18,16 @@ Sources(ISOs):
 
 *SPP - https://opsportal.spp.org/Studies/GIActive
 
-*NYISO - https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx
+*NYISO - https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx / https://www.nyiso.com/interconnections
 
 *NEISO - https://irtt.iso-ne.com/reports/external
 
 
 Things to note:
 
-* Included in this folder are Python scripts to process the queues from the above listed ISOs and an additional script to compile the processed ISO queues into one large Excel file/database.
+* Included in this folder are Python scripts to process the queues from the above listed ISOs and an additional script to compile the processed ISO queues into one large Excel file/database. Each ISO reports slightly different fields for their queues, hence an effort was made to standardize column names. When a column cannot be standardized, it is inserted at the end of the returned dataframe.
+
+* Python libraries you need include: pandas, openpyxl and datetime. (Any that you do not already have can be installed using pip.)
 
 * Some functions within the Python scripts are not applicable to .csv files. This is indicated in the comments, and unsupported file types will result in an error message. 
 

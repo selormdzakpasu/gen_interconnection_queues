@@ -87,5 +87,5 @@ def process_neiso_file(file_path):
     print(f"File processed and saved at {output_file}")
 
 # Specify file name and run
-file_path = "Queues/NEISO QueueReport_20250107130953.xlsx"  # Replace with your file name
+file_path = "Queues/NEISO QueueReport.xlsx"  # Replace with your file name
 process_neiso_file(file_path)

@@ -33,6 +33,7 @@ def process_spp_file(file_path):
 
     # Rename specific columns based on the provided mapping
     column_rename_map = {
+        4: "Nearest Town or County",
         6: "Transmission Owner/Developer",
         7: "Proposed In-Service/Initial Backfeed Date",
         8: "Projected COD",

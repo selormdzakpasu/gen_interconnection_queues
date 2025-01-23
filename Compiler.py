@@ -39,8 +39,47 @@ def concatenate_excel_files(file_paths, output_file):
     # Concatenate all DataFrames
     combined_df = pd.concat(dataframes, ignore_index=True)
     
-    # Write the combined DataFrame to a new Excel file
-    combined_df.to_excel(output_file, index=False, engine='openpyxl')
+    # List of project statuses to remove (Withdrawn/Deactivated)
+    proj_statuses_withdrawn = [
+        "Annulled", "Canceled", "Deactivated", "Retracted", "Suspended", "WITHDRAWN", "Withdrawn"
+    ]
+
+    # Create a DataFrame for entries with withdrawn status
+    withdrawn_df_1 = combined_df[combined_df["Application Status"] == "Withdrawn"] # Check "Application Status" for withdrawn entries
+    not_withdrawn_df = combined_df[combined_df["Application Status"] != "Withdrawn"]
+    
+    withdrawn_df_2 = not_withdrawn_df[not_withdrawn_df["Withdrawal Date"].notna()] # To filter out rows where 'Withdrawal Date' is not empty (not NaN or not empty string)
+    not_withdrawn_df = not_withdrawn_df[~not_withdrawn_df["Withdrawal Date"].notna()]
+    
+    withdrawn_df_3 = not_withdrawn_df[not_withdrawn_df["Project Status"].isin(proj_statuses_withdrawn)] # Check "Project Status" for withdrawn entries
+    
+    withdrawn = [withdrawn_df_1, withdrawn_df_2, withdrawn_df_3]
+    withdrawn_df = pd.concat(withdrawn, ignore_index=True)
+
+    # Remove rows with withdrawn status from the main dataframe
+    combined_df = combined_df[combined_df["Application Status"] != "Withdrawn"]
+    combined_df = combined_df[~combined_df["Withdrawal Date"].notna()] # To filter out rows where 'Withdrawal Date' is empty or NaN
+    combined_df = combined_df[~combined_df["Project Status"].isin(proj_statuses_withdrawn)]
+
+    # Create a DataFrame for entries with in-service/completed status
+    completed_df_1 = combined_df[combined_df["Application Status"] == "Done"] # Check "Application Status" for entries with "done" status
+    active_df = combined_df[combined_df["Application Status"] != "Done"]
+    
+    completed_df_2 = active_df[active_df["Project Status"] == "In Service"] # Check "Project Status" for in service entries 
+    
+    completed = [completed_df_1, completed_df_2]
+    completed_df = pd.concat(completed, ignore_index=True)
+
+    # Remove rows with completed status from the main dataframe
+    combined_df = combined_df[combined_df["Application Status"] != "Done"] # Remove entries with "done" application status from main dataframe
+    combined_df = combined_df[combined_df["Project Status"] != "In Service"] # Remove in service entries from main dataframe
+
+    # Export DataFrames to an Excel file
+    with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
+        combined_df.to_excel(writer, index=False, sheet_name="Active") # Active entries
+        withdrawn_df.to_excel(writer, index=False, sheet_name="Withdrawn") # Withdrawn entries
+        completed_df.to_excel(writer, index=False, sheet_name="Completed") # Entries with "done" and "in service" status
+    
     print(f"Files have been concatenated into {output_file}")
 
 # File paths and corresponding ISO names
@@ -65,5 +104,5 @@ for file_path, iso_name in files_and_iso:
     add_column(file_path, iso_name)
 
 
-output_file = "Combined_Queues.xlsx"
+output_file = "Combined_Queues.xlsx" # "Combined_Queues.xlsx" can be replaced with the desired file path & name
 concatenate_excel_files(file_paths, output_file)
