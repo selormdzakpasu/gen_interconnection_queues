@@ -39,10 +39,28 @@ def concatenate_excel_files(file_paths, output_file):
     # Concatenate all DataFrames
     combined_df = pd.concat(dataframes, ignore_index=True)
     
+    # Reorder the DataFrame columns
+    new_column_order = [
+        'ISO', 'Project ID', 'Project Name', 'Queue Position', 'Transmission Owner', 'Queue Date', 'State', 
+        'County', 'Service Type', 'Application Status', 'Project Status', 'POI Name', 'Projected COD', 
+        'Technology', 'Type-1', 'Type-2', 'Type-3', 'Capacity (MW)', 'MW-1', 'MW-2', 'MW-3', 'Summer MW', 
+        'Winter MW', 'MW Energy', 'Capacity Status', 'Interconnection Agreement Status', 
+        'Approved for Synchronization', 'Actual In Service Date', 'Done Date', 'Withdrawal Date', 
+        'Cessation Date', 'TPD Allocation Percentage', 'TPD Allocation Group', 'Availability of Studies', 
+        'Feasibility Study Status', 'System Impact Study Status', 'Facilities Study Status', 'Screening Study Started', 
+        'Screening Study Complete', 'FIS Requested', 'FIS Approved', 'Optional Study', 'Economic Study Required', 
+        'PTO Study Region', 'Study Cycle', 'Study Group', 'CDR Reporting Zone', 'Current Cluster', 'Cluster Group', 
+        'Comment', 'Change Indicators'
+    ]
+    combined_df = combined_df[new_column_order]
+    
     # List of project statuses to remove (Withdrawn/Deactivated)
     proj_statuses_withdrawn = [
         "Annulled", "Canceled", "Deactivated", "Retracted", "Suspended", "WITHDRAWN", "Withdrawn"
     ]
+    
+    # List of project statuses to remove (In Service/IA FULLY EXECUTED/COMMERCIAL OPERATION)
+    proj_statuses_completed = ["IA FULLY EXECUTED/COMMERCIAL OPERATION", "In Service"]
 
     # Create a DataFrame for entries with withdrawn status
     withdrawn_df_1 = combined_df[combined_df["Application Status"] == "Withdrawn"] # Check "Application Status" for withdrawn entries
@@ -61,18 +79,11 @@ def concatenate_excel_files(file_paths, output_file):
     combined_df = combined_df[~combined_df["Withdrawal Date"].notna()] # To filter out rows where 'Withdrawal Date' is empty or NaN
     combined_df = combined_df[~combined_df["Project Status"].isin(proj_statuses_withdrawn)]
 
-    # Create a DataFrame for entries with in-service/completed status
-    completed_df_1 = combined_df[combined_df["Application Status"] == "Done"] # Check "Application Status" for entries with "done" status
-    active_df = combined_df[combined_df["Application Status"] != "Done"]
-    
-    completed_df_2 = active_df[active_df["Project Status"] == "In Service"] # Check "Project Status" for in service entries 
-    
-    completed = [completed_df_1, completed_df_2]
-    completed_df = pd.concat(completed, ignore_index=True)
+    # Create a DataFrame for entries with in-service status
+    completed_df = combined_df[combined_df["Project Status"].isin(proj_statuses_completed)] # Check "Project Status" for completed entries
 
     # Remove rows with completed status from the main dataframe
-    combined_df = combined_df[combined_df["Application Status"] != "Done"] # Remove entries with "done" application status from main dataframe
-    combined_df = combined_df[combined_df["Project Status"] != "In Service"] # Remove in service entries from main dataframe
+    combined_df = combined_df[~combined_df["Project Status"].isin(proj_statuses_completed)] # Remove in service entries from main dataframe
 
     # Export DataFrames to an Excel file
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:

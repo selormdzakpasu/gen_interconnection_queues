@@ -36,21 +36,37 @@ def process_nyiso_file(file_path):
     # Slice the DataFrame to keep only the rows up to the last filled row using the first column
     df = df.iloc[:last_filled_row + 1, :]
     
-    # Delete columns at specific indices
-    df.drop(df.columns[[9]], axis=1, inplace=True)
-    
-    # Reset the index
-    df.reset_index(drop=True, inplace=True)
-    
     # Set the first row as column headers
     df.columns = df.iloc[0]
     df = df[1:]
 
-    # Reset the index again
+    # Reset the index
     df.reset_index(drop=True, inplace=True)
     
-    # Define the mapping key for the "Fuel" column
-    fuel_key = {
+    # Merge "Developer/Interconnection Customer" and "Utility"
+    df['Transmission Owner'] = df[['Developer/Interconnection Customer', 'Utility']].apply(lambda row: ' , '.join(row.dropna().astype(str)), axis=1)
+     
+    # Drop redundant columns
+    df.drop(['Z', 'Last Updated Date', 'IA Tender Date', 'Proposed In-Service/Initial Backfeed Date', 'Proposed Sync Date', 'CY/FS Complete Date',
+             'Developer/Interconnection Customer', 'Utility'], axis=1, inplace=True)
+
+    # Rename specific columns based on the provided mapping
+    columns_to_rename = {
+    "Queue Pos.": "Queue Position",
+    "Date of IR": "Queue Date",
+    "SP (MW)": "Summer MW",
+    "WP (MW)": "Winter MW",
+    "Type/ Fuel": "Technology",
+    "Points of Interconnection": "POI Name",
+    "S": "Project Status",
+    "Proposed COD": "Projected COD"
+    }
+    
+    # Rename Columns
+    df.rename(columns=columns_to_rename, inplace=True)
+    
+    # Define the mapping key for the "Technology" column
+    technology_key = {
         "ST": "Steam Turbine",
         "CT": "Combustion Turbine",
         "CS": "Steam Turbine & Combustion Turbine",
@@ -96,31 +112,12 @@ def process_nyiso_file(file_path):
         "15": "Partial In-Service",
         "P": "Pending Adoption of IP Compliance with Order 2023"
     }
-
-    # Replace the values in column index 6 based on the fuel key
-    df.iloc[:, 6] = df.iloc[:, 6].replace(fuel_key)
+    
+    # Replace the values in column index 6 based on the technology key
+    df['Technology'] = df['Technology'].replace(technology_key)
     
     # Replace values in column index 11 based on the project status key
-    df.iloc[:, 11] = df.iloc[:, 11].replace(project_status_key)
-
-    # Rename specific columns based on the provided mapping
-    column_rename_map = {
-        0: "Queue Position",
-        1: "Transmission Owner/Developer",
-        3: "Interconnection Request Receive Date",
-        4: "MAX Summer MW",
-        5: "MAX Winter MW",
-        6: "Fuel",
-        7: "Nearest Town or County",
-        9: "POI Name",
-        11: "Project Status",
-        12: "Date Updated",
-        14: "IA Signed Date"        
-    }
-
-    for position, new_name in column_rename_map.items():
-        if position < len(df.columns):
-            df.columns.values[position] = new_name
+    df['Project Status'] = df['Project Status'].replace(project_status_key)
 
     # Save the modified DataFrame back to a file
     output_file = f"Processed Queues/NYISO_Queue.xlsx"

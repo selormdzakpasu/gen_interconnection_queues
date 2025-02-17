@@ -31,37 +31,29 @@ def process_neiso_file(file_path):
     # Reset the index again
     df.reset_index(drop=True, inplace=True)
     
-    # Delete columns at specific indices
-    df.drop(df.columns[[16, 19, 20, 21]], axis=1, inplace=True)
-    
-    # Reset the index again
-    df.reset_index(drop=True, inplace=True)
+    # Drop redundant columns
+    df.drop(['Updated', 'Unit', 'Sync Date', 'Serv', 'SIS Complete', 'I39', 'TO Report', 'Dev', 'Zone'], axis=1, inplace=True)
 
     # Rename specific columns based on the provided mapping
-    column_rename_map = {
-        0: "Queue Position",
-        1: "Date Updated",
-        2: "Service Type",
-        3: "Interconnection Request Receive Date",
-        4: "Project Name",
-        5: "Technology",
-        6: "Fuel",
-        7: "Net MWs to Grid",
-        10: "Nearest Town or County",
-        12: "Projected COD",
-        13: "Proposed Sync Date",
-        14: "Withdrawal Date",
-        15: "POI Name",
-        18: "Feasibility Study Status",
-        19: "System Impact Study Status",
-        20: "Optional Study",
-        21: "Facilities Study Status",
-        22: "Interconnection Agreement Status"
+    columns_to_rename = {
+    "Position": "Queue Position",
+    "Type": "Service Type",
+    "Requested": "Queue Date",
+    "Alternative Name": "Project Name",
+    "Fuel Type": "Technology",
+    "Net MW": "Capacity (MW)",
+    "Op Date": "Projected COD",
+    "W/ D Date": "Withdrawal Date",
+    "Interconnection Location": "POI Name",
+    "FS": "Feasibility Study Status",
+    "SIS": "System Impact Study Status",
+    "OS": "Optional Study",
+    "FAC": "Facilities Study Status",
+    "IA": "Interconnection Agreement Status"
     }
-
-    for position, new_name in column_rename_map.items():
-        if position < len(df.columns):
-            df.columns.values[position] = new_name
+    
+    # Rename Columns
+    df.rename(columns=columns_to_rename, inplace=True)
 
     # Save the modified DataFrame back to a file
     output_file = f"Processed Queues/NEISO_Queue.xlsx"

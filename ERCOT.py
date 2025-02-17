@@ -75,26 +75,29 @@ def process_ercot_file(file_path):
     # Load the data into a DataFrame
     processed_df = pd.read_excel(output_file)
     
+    # Merge Change Indicator columns
+    processed_df['Change Indicators'] = processed_df[['Change indicators: Proj Name, MW Size, COD, SFS/NtP, FIS Request, Status Change INA-to-PLN', 
+                                                      'Change indicators: Proj Name, MW Size, COD, SFS. Status Change INA-to-PLN']].apply(lambda row: ' '.join(row.dropna().astype(str)), axis=1)
+    
+    # Drop redundant columns
+    processed_df.drop(['Fuel', 'Change indicators: Proj Name, MW Size, COD, SFS/NtP, FIS Request, Status Change INA-to-PLN',
+                       'Change indicators: Proj Name, MW Size, COD, SFS. Status Change INA-to-PLN', 'Approval Date for Submission of Proof of  Site Control',
+                       'Air Permit', 'GHG Permit', 'Water Availability', 'Construction Start', 'Construction End', 'Approved for Energization',
+                       'Financial Security  Required to fund Dist. Upgrades', 'Meets Planning Guide Section 6.9(1)  Requirements for  Inclusion in Planning  Models',
+                       'Meets All Planning Guide Section 6.9 Requirements for  Inclusion in Planning Models', 'Meets Planning Guide  QSA (Section 5.9)  Prerequisites',
+                       'Financial Security  and Notice to  Proceed Provided', 'Model Ready Date'], axis=1, inplace=True)
+    
     # Rename specific columns based on the provided mapping
-    column_rename_map = {
-        0: "Generation Interconnection Number",
-        3: "Transmission Owner/Developer",
-        4: "POI Name",
-        5: "Nearest Town or County",
-        18: "IA Signed Date"
+    columns_to_rename = {
+    "INR": "Project ID",
+    "Interconnecting Entity": "Transmission Owner",
+    "POI Location": "POI Name",
+    "IA Signed": "Queue Date",
+    "GIM Study Phase": "Availability of Studies"
     }
-
-    for position, new_name in column_rename_map.items():
-        if position < len(processed_df.columns):
-            processed_df.columns.values[position] = new_name
-
-    # Merge columns 12 and 33, keeping the header of column 12
-    if len(processed_df.columns) > 32:  # Ensure that column 33 exists (index 32)
-        # Copy values from column 33 (index 32) into column 12 (index 11) where there is data
-        processed_df.iloc[:, 11] = processed_df.iloc[:, 11].fillna('') + processed_df.iloc[:, 32].fillna('')
-
-        # Drop column 33 (index 32)
-        processed_df.drop(columns=[processed_df.columns[32]], inplace=True)
+    
+    # Rename Columns
+    processed_df.rename(columns=columns_to_rename, inplace=True)
 
     # Save the modified DataFrame back to the same file
     processed_df.to_excel(output_file, index=False)

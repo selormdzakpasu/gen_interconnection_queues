@@ -30,25 +30,37 @@ def process_spp_file(file_path):
 
     # Reset the index again
     df.reset_index(drop=True, inplace=True)
+    
+    # List of columns to drop
+    columns_to_drop = ['IFS Queue Number', 'In-Service Date', 'Fuel Type', 'Cause of Delay']
+
+    # Check if 'Replacement Generator Commercial Op Date' or 'Original Generator Commercial Op Date' exists and add to the list
+    if 'Replacement Generator Commercial Op Date' in df.columns:
+        columns_to_drop.append('Replacement Generator Commercial Op Date')
+    elif 'Original Generator Commercial Op Date' in df.columns:
+        columns_to_drop.append('Original Generator Commercial Op Date')
+
+    # Drop the columns
+    df.drop(columns=columns_to_drop, axis=1, inplace=True)
 
     # Rename specific columns based on the provided mapping
-    column_rename_map = {
-        4: "Nearest Town or County",
-        6: "Transmission Owner/Developer",
-        7: "Proposed In-Service/Initial Backfeed Date",
-        8: "Projected COD",
-        11: "Capacity (MW)",
-        15: "Technology",
-        16: "Fuel",
-        17: "POI Name",
-        18: "Interconnection Request Receive Date",
-        19: "Withdrawal Date",
-        20: "Project Status"
+    columns_to_rename = {
+    "Generation Interconnection Number": "Project ID",
+    " Nearest Town or County": "County",
+    "TO at POI": "Transmission Owner",
+    "Capacity": "Capacity (MW)",
+    "Commercial Operation Date": "Projected COD",
+    "MAX Summer MW": "Summer MW",
+    "MAX Winter MW": "Winter MW",
+    "Generation Type": "Technology",
+    "Substation or Line": "POI Name",
+    "Request Received": "Queue Date",
+    "Date Withdrawn": "Withdrawal Date",
+    "Status": "Project Status"
     }
-
-    for position, new_name in column_rename_map.items():
-        if position < len(df.columns):
-            df.columns.values[position] = new_name    
+    
+    # Rename Columns
+    df.rename(columns=columns_to_rename, inplace=True)
 
     # Save the modified DataFrame back to a file
     output_file = f"Processed Queues/SPP_Queue.xlsx"

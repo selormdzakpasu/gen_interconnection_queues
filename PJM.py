@@ -21,26 +21,31 @@ def process_pjm_file(file_path):
 
     # Reset the index
     df.reset_index(drop=True, inplace=True)
+    
+    # Drop redundant columns
+    df.drop(['MFO', 'MW In Service', 'Project (AC/DC)', 'Rights (MW)', 'Initial Study', 'Feasibility Study', 'System Impact Study', 'Facilities Study',
+             'Interim/Interconnection Service/Generation Interconnection Agreement', 'Wholesale Market Participation Agreement', 'Construction Service Agreement',
+             'Construction Service Agreement Status', 'Upgrade Construction Service Agreement', 'Upgrade Construction Service Agreement Status', 'Backfeed Date',
+             'Long-Term Firm Service Start Date', 'Long-Term Firm Service End Date', 'Test Energy Date', 'Revised In Service Date', 'Attachment Type',
+             'Alternate Project', 'Sliding Project'], axis=1, inplace=True)
 
     # Rename specific columns based on the provided mapping
-    column_rename_map = {
-        1: "POI Name",
-        2: "Project Name",
-        4: "Nearest Town or County",
-        5: "Project Status",
-        6: "Transmission Owner/Developer",
-        8: "Energy",
-        9: "Capacity (MW)",
-        12: "Service Type",
-        24: "Interconnection Agreement Status",
-        30: "Proposed In-Service/Initial Backfeed Date",
-        31: "Interconnection Request Receive Date",
-        37: "Projected COD"
+    columns_to_rename = {
+    "Name": "POI Name",
+    "Commercial Name": "Project Name",
+    "Status": "Project Status",
+    "MW Capacity": "Capacity (MW)",
+    "Capacity or Energy": "Capacity Status",
+    "Project Type": "Service Type",
+    "Fuel": "Technology",
+    "Interim/Interconnection Service/Generation Interconnection Agreement Status": "Interconnection Agreement Status",
+    "Submitted Date": "Queue Date",
+    "Commercial Operation Milestone": "Projected COD",
+    "Withdrawn Remarks": "Comment"
     }
-
-    for position, new_name in column_rename_map.items():
-        if position < len(df.columns):
-            df.columns.values[position] = new_name
+    
+    # Rename Columns
+    df.rename(columns=columns_to_rename, inplace=True)
 
     # Save the modified DataFrame back to a file
     output_file = f"Processed Queues/PJM_Queue.xlsx"

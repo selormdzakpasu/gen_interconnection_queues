@@ -48,51 +48,35 @@ def process_caiso_file(file_path):
 
     # Slice the DataFrame to keep only the rows up to the last filled row in the first column
     df = df.iloc[:last_filled_row + 1, :]
-
-    # Insert new columns into the specified positions first
-    new_columns = {
-        6: "Technology",
-        10: "Fuel",
-        14: "Capacity (MW)",
-        19: "Energy"
-    }
-
-    for position, header in new_columns.items():
-        # Insert a new column at the specified position
-        if position >= len(df.columns):
-            # Extend the DataFrame to ensure the position exists
-            while len(df.columns) <= position:
-                df[len(df.columns)] = ''
-
-        # Insert the new column header
-        df.insert(position, header, '')
+    
+    # Replace newline characters in column headers with a space
+    df.columns = df.columns.str.replace('\n', ' ', regex=True)
+    
+    # Drop redundant columns
+    df.drop(['Fuel-1', 'Fuel-2', 'Fuel-3', 'Suspension Status', 'Interconnection Request Receive Date', 'Proposed On-line Date (as filed with IR)', 'Study Process'], axis=1, inplace=True)
 
     # Rename specific columns based on the provided mapping
-    column_rename_map = {
-        2: "Interconnection Request Receive Date",
-        5: "Study Process",
-        7: "Technology-1",
-        8: "Technology-2",
-        9: "Technology-3",
-        15: "Capacity-1",
-        16: "Capacity-2",
-        17: "Capacity-3",
-        20: "Energy-1",
-        21: "Energy-2",
-        22: "Energy-3",
-        27: "Nearest Town or County",
-        31: "POI Name",
-        32: "Proposed In-Service/Initial Backfeed Date",
-        33: "Projected COD",
-        35: "Feasibility Study Status",
-        36: "System Impact Study Status",
-        37: "Facilities Study Status",
-        39: "Interconnection Agreement Status"
+    columns_to_rename = {
+    "Station or Transmission Line": "POI Name",
+    "Utility": "Transmission Owner",
+    "Current On-line Date": "Projected COD",
+    "Interconnection Agreement  Status": "Interconnection Agreement Status",
+    "Feasibility Study or Supplemental Review": "Feasibility Study Status",
+    "System Impact Study or  Phase I Cluster Study": "System Impact Study Status",
+    "Facilities Study (FAS) or  Phase II Cluster Study": "Facilities Study Status",
+    "Net MWs to Grid": "Capacity (MW)",
+    "Optional Study (OS)": "Optional Study"
     }
+    
+    # Rename Columns
+    df.rename(columns=columns_to_rename, inplace=True)
+    
+    # Concatenate 'Full Capacity, Partial or Energy Only (FC/P/EO)' and 'Off-Peak Deliverability and Economic Only' columns
+    df['Capacity Status'] = df[['Full Capacity, Partial or Energy Only (FC/P/EO)', 'Off-Peak Deliverability and Economic Only']
+                            ].apply(lambda row: ' , '.join(row.dropna().astype(str)), axis=1)
 
-    for position, new_name in column_rename_map.items():
-        if position < len(df.columns):
-            df.columns.values[position] = new_name
+    # Drop the original columns
+    df.drop(['Full Capacity, Partial or Energy Only (FC/P/EO)', 'Off-Peak Deliverability and Economic Only'], axis=1, inplace=True)
 
     # Save the modified DataFrame back to a file
     output_file = f"Processed Queues/CAISO_Queue.xlsx"
